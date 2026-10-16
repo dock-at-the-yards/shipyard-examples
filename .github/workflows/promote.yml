@@ -39,8 +39,10 @@ permissions:
   # The merge step polls statusCheckRollup for the gates; without these
   # the query fails with "Resource not accessible by integration"
   # (the rollup nests checkSuite.workflowRun, which needs actions:read).
+  # The dispatch step below asks CI for a run on the PR's head commit,
+  # which needs actions:write.
   checks: read
-  actions: read
+  actions: write
 
 concurrency:
   group: examples-promote-${{ inputs.target }}
@@ -136,6 +138,24 @@ jobs:
             --title "$TITLE" --body "$BODY")"
           echo "::notice::opened $URL"
           echo "number=$(gh pr view "$URL" --json number --jq .number)" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger CI on the promotion pull request
+        if: steps.pr.outputs.number != '' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE: ${{ steps.tier.outputs.source }}
+        run: |
+          set -euo pipefail
+          # The PR was opened with GITHUB_TOKEN, and events raised by that
+          # token never trigger workflows — so CI would never report the
+          # required checks on the PR's head commit, and the protected base
+          # branch would refuse the merge with "base branch policy prohibits
+          # the merge". workflow_dispatch is the documented exception to the
+          # suppression rule, so ask for the run explicitly. The dispatched
+          # checks attach to the head commit, which is what the rollup below
+          # (and the ruleset) evaluates.
+          gh workflow run ci.yml --ref "$SOURCE"
+          echo "::notice::dispatched CI for $SOURCE (PR #${{ steps.pr.outputs.number }})"
 
       - name: Merge once checks pass
         if: steps.pr.outputs.number != '' && inputs.dry_run != true
