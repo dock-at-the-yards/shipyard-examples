@@ -34,13 +34,13 @@ shipyard run .
 ```
 
 The rollout lands under the example's `rollouts/` directory (`run.json`,
-`results.json`, the rubric's itemized verdict). One line below shows the
-same loop on an evalset with repeats, a committed baseline, and the delta
-gate:
+`results.json`, the rubric's itemized verdict). The same loop against a
+committed baseline, with repeats:
 
 ```bash
-shipyard run examples/offline/expected-failure --repeat 3
-shipyard compare examples/offline/expected-failure
+cd examples/offline/weighted-rubric
+shipyard run . --repeat 3    # pass@k / pass^k across three repeats
+shipyard compare .           # delta gate against baselines/main.json
 ```
 
 ## Repository layout
