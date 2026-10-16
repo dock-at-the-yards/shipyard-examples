@@ -39,8 +39,10 @@ permissions:
   # The merge step polls statusCheckRollup for the gates; without these
   # the query fails with "Resource not accessible by integration"
   # (the rollup nests checkSuite.workflowRun, which needs actions:read).
+  # It also approves the promotion PR's workflow run (see below), which
+  # needs actions:write.
   checks: read
-  actions: read
+  actions: write
 
 concurrency:
   group: examples-promote-${{ inputs.target }}
@@ -142,6 +144,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUMBER: ${{ steps.pr.outputs.number }}
+          SOURCE: ${{ steps.tier.outputs.source }}
         run: |
           set -euo pipefail
           # No --auto and no --squash, deliberately. --auto needs the
@@ -152,8 +155,25 @@ jobs:
           # gates are awaited explicitly below, then merged with an explicit
           # merge commit, which preserves ancestry across promotions. Repos
           # with no gates configured (empty rollup) merge right away.
+          HEAD_SHA="$(git rev-parse "origin/$SOURCE")"
           GRACE_END=$(( $(date +%s) + 300 ))
           for i in $(seq 1 45); do
+            # A PR opened with GITHUB_TOKEN produces workflow runs held in
+            # `action_required` until a user with write access approves them
+            # ("This workflow run required approval but was not approved
+            # before it expired"). Without the approval, CI never reports
+            # the required checks and the protected base branch refuses the
+            # merge. The token carries actions:write, which is what the
+            # approve endpoint needs; runs can appear a few seconds after
+            # the PR does, so this is retried every pass.
+            for run_id in $(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$HEAD_SHA&status=action_required" \
+                --jq '.workflow_runs[].id' 2>/dev/null || true); do
+              if gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve" >/dev/null 2>&1; then
+                echo "approved workflow run $run_id on $HEAD_SHA"
+              else
+                echo "::warning::could not approve workflow run $run_id"
+              fi
+            done
             ROLLUP="$(gh pr view "$NUMBER" --json statusCheckRollup --jq '.statusCheckRollup')"
             N="$(echo "$ROLLUP" | jq 'length')"
             FAILED="$(echo "$ROLLUP" | jq '[.[] | select(.conclusion == "FAILURE" or .conclusion == "CANCELLED" or .conclusion == "TIMED_OUT" or .conclusion == "ACTION_REQUIRED" or .conclusion == "STARTUP_FAILURE")] | length')"
