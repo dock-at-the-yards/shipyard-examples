@@ -1,0 +1,37 @@
+name = "weighted-rubric"
+description = "Weighted rubric items with pass_threshold below 1.0: the reference agent fixes two of three bugs and the run still passes — partial credit, deterministically, plus a committed baseline for the compare gate."
+version = "1.0.0"
+instruction = "instruction.md"
+timeout_s = 120
+max_turns = 10
+
+# Same deterministic pattern as python-agent: the reference agent fixes
+# mean() and median() and deliberately leaves mode() broken, so the weighted
+# aggregate lands at 0.8.
+[[agent]]
+name = "reference-agent"
+role = "target"
+plugin = "python"
+entrypoint = "agent.py"
+
+[environment]
+type = "local"
+workdir = "workdir"
+
+[tests]
+rubric = "tests/rubric.py"
+entrypoint = "score"
+# Weights live in the rubric (0.4 / 0.4 / 0.2); this is the pass mark the
+# aggregate is compared against. 0.8 >= 0.7, so the partial fix passes.
+pass_threshold = 0.7
+
+# Gate policy — the locked v0.0.2 defaults, written out so that a policy
+# change is a deliberate, reviewable diff rather than an implicit engine
+# change. `shipyard compare` reads this when gating the newest run against
+# baselines/main.json.
+[gate]
+max_score_drop_pct = 2.0
+max_cost_increase_pct = 0.0
+block_on_flake = true
+min_k_noise_floor = 3
+confidence = 0.95

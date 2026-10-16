@@ -1,0 +1,31 @@
+name = "python-agent"
+description = "The built-in python runtime plugin: a deterministic agent script edits src/ in a local sandbox and a rubric scores the workspace. No model, no API keys, no Docker."
+version = "1.0.0"
+instruction = "instruction.md"
+timeout_s = 120
+max_turns = 10
+
+# The `python` runtime plugin resolves `entrypoint` against this file's
+# directory and runs `python3 agent.py` inside the sandbox. The script reads
+# $SHIPYARD_WORKDIR, writes a correct `slugify` implementation, and prints a
+# short summary. Swap in a real subject agent at run time without editing
+# anything:
+#
+#   shipyard run . --agent claude-code
+[[agent]]
+name = "reference-agent"
+role = "target"
+plugin = "python"
+entrypoint = "agent.py"
+
+# Local environment: the sandbox is this machine, no container runtime is
+# involved. The workspace is `workdir/`; Shipyard restores it after the run
+# (pass --keep-workdir to inspect the agent's changes instead).
+[environment]
+type = "local"
+workdir = "workdir"
+
+[tests]
+rubric = "tests/rubric.py"
+entrypoint = "score"
+pass_threshold = 1.0

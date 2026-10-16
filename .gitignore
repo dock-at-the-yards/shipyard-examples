@@ -1,0 +1,14 @@
+# Rollouts are run output, not source. Committed sample results live under
+# fixtures/ instead, and baselines/ is committed on purpose (it is the
+# reference a candidate is gated against).
+rollouts/
+
+.env
+.env.local
+*.env.local
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1",
+  "name": "main",
+  "created_at": "2026-10-16T13:57:15Z",
+  "created_by": "shipyard-examples",
+  "source_run_id": "baseline-seed",
+  "suite_digest": "sha256:b7a43ed66243e864284849398bc4897e8df3b8a93d046c3acca6411e56d2f1f9",
+  "k": 1,
+  "verdict": "passed",
+  "started_at": "2026-10-16T13:57:15Z",
+  "ended_at": "2026-10-16T13:57:15Z",
+  "totals": {
+    "evals": 1,
+    "passed": 1,
+    "failed": 0,
+    "flaked": 0,
+    "errored": 0,
+    "mean_score": 0.8
+  },
+  "evals": [
+    {
+      "schema_version": "1",
+      "eval_name": "weighted-rubric",
+      "path": ".",
+      "run_id": "baseline-seed",
+      "k": 1,
+      "passed_count": 1,
+      "failed_count": 0,
+      "errored_count": 0,
+      "flaked": false,
+      "verdict": "passed",
+      "pass_at_k": 1,
+      "pass_pow_k": 1,
+      "mean_score": 0.8,
+      "sigma_score": 0,
+      "repeats": [
+        {
+          "repeat_index": 1,
+          "verdict": "passed",
+          "passed": true,
+          "score": 0.8,
+          "duration_ms": 94,
+          "rollout_dir": "rollouts/baseline-seed",
+          "trajectory_summary": {
+            "steps": 1,
+            "tool_calls": []
+          }
+        }
+      ],
+      "suite_digest": "sha256:b7a43ed66243e864284849398bc4897e8df3b8a93d046c3acca6411e56d2f1f9",
+      "definition_digest": "sha256:3f9518b84f5a5be2307e4e73fb576f19ffaf8ee3e3ae092e8d0df868ee5581dd",
+      "definition_files": {
+        "eval.toml": "sha256:2e3ec81f92b5a7443ddd01426a505495e83c6ebc8892ae9a26c2052a29a47202",
+        "instruction.md": "sha256:11a29e43045399ba712bba21031467fcdf2646884a4562005a06e0e33b54f13f",
+        "tests/rubric.py": "sha256:63a9deff145deebec79b7c317fb6f993042ff9d56f5ac35c098f3578c9008fa3"
+      },
+      "started_at": "2026-10-16T13:57:15Z",
+      "ended_at": "2026-10-16T13:57:15Z"
+    }
+  ]
+}

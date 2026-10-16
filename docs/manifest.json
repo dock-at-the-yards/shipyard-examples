@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "repo": "https://github.com/dock-at-the-yards/shipyard-examples",
+  "category": "Examples",
+  "pages": [
+    {
+      "id": "examples",
+      "file": "examples-overview.md",
+      "title": "Overview",
+      "summary": "One runnable example per Shipyard feature, grouped by the infrastructure each needs"
+    },
+    {
+      "id": "examples-quickstart",
+      "file": "examples-quickstart.md",
+      "title": "Running the Examples",
+      "summary": "Install the pinned CLI, lint and run an example, and read the rollout artifacts"
+    },
+    {
+      "id": "examples-agents",
+      "file": "examples-agents.md",
+      "title": "Agent Plugins",
+      "summary": "The plugin families — runtimes, LLM APIs, CLI harnesses, frameworks, remote — and their examples"
+    },
+    {
+      "id": "examples-environments",
+      "file": "examples-environments.md",
+      "title": "Environments",
+      "summary": "local, docker, and custom sandboxes: what each example runs in and why"
+    },
+    {
+      "id": "examples-rubrics",
+      "file": "examples-rubrics.md",
+      "title": "Rubrics & Gates",
+      "summary": "The rubric contract, weighted items, repeats, baselines, compare, and reports"
+    },
+    {
+      "id": "examples-ci",
+      "file": "examples-ci.md",
+      "title": "CI & Negative Cases",
+      "summary": "Generated pipelines for GitHub, GitLab, Jenkins and Argo, and the deliberately broken evals"
+    }
+  ]
+}

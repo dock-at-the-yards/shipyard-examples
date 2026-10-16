@@ -1,0 +1,122 @@
+name: CI
+
+# shipyard-examples CI is three jobs:
+#
+#   validate   static checks — every manifest parses, every path it references
+#              exists, JSON/py/ts sources are sound, the docs manifest is
+#              intact, no secrets
+#   e2e        the hermetic tiers (offline, node, docker, negative) run against
+#              the exact CLI release named in VERSION
+#   paid       the tiers that spend money (keys, harness). Never part of a
+#              push build: they need API credentials and an LLM's output varies
+#              between runs, so a flaky gate would train everyone to ignore
+#              red. workflow_dispatch only, with secrets.
+#
+# Runs on GitHub-hosted runners: the hermetic tiers need nothing but python3,
+# Node and the Docker daemon that ubuntu-latest already provides.
+
+on:
+  push:
+    branches: [main, staging, develop]
+    tags: ['v*']
+  pull_request:
+    branches: [main, staging, develop]
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: 'Paid tier to run (spends money; requires repository secrets)'
+        required: true
+        type: choice
+        options:
+          - none
+          - keys
+          - harness
+        default: none
+
+permissions:
+  contents: read
+
+concurrency:
+  group: examples-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate manifests, fixtures, sources, secrets
+        run: scripts/validate-static.sh
+
+      - name: Check the docs import contract
+        run: python3 scripts/docs-check.py
+
+  e2e:
+    name: E2E (hermetic tiers)
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install the pinned CLI release
+        run: |
+          set -euo pipefail
+          VERSION="v$(tr -d '[:space:]' < VERSION)"
+          curl -fsSL https://raw.githubusercontent.com/dock-at-the-yards/shipyard-cli/main/install.sh \
+            | sh -s -- --version "$VERSION" --install-dir "$HOME/.shipyard" --yes
+          echo "$HOME/.shipyard" >> "$GITHUB_PATH"
+
+      - name: Run the hermetic tiers
+        run: scripts/e2e.sh --tier all --strict-version
+
+      - name: Upload the e2e workdir on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-workdir
+          path: /tmp/shipyard-examples-e2e.*
+          if-no-files-found: ignore
+          retention-days: 7
+
+  paid:
+    name: E2E (${{ inputs.tier }}) — paid tier
+    if: github.event_name == 'workflow_dispatch' && inputs.tier != 'none'
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install the pinned CLI release
+        run: |
+          set -euo pipefail
+          VERSION="v$(tr -d '[:space:]' < VERSION)"
+          curl -fsSL https://raw.githubusercontent.com/dock-at-the-yards/shipyard-cli/main/install.sh \
+            | sh -s -- --version "$VERSION" --install-dir "$HOME/.shipyard" --yes
+          echo "$HOME/.shipyard" >> "$GITHUB_PATH"
+
+      # The keys tier needs at least one provider credential below; the
+      # harness tier needs the agents installed (see examples/harness for
+      # per-agent setup and add the install steps here when the first harness
+      # example lands — until then that tier reports "no examples yet").
+      - name: Run the ${{ inputs.tier }} tier
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          SHIPYARD_REMOTE_AGENT_URL: ${{ secrets.SHIPYARD_REMOTE_AGENT_URL }}
+        run: scripts/e2e.sh --tier "${{ inputs.tier }}" --strict-version --keep
+
+      - name: Upload the e2e workdir on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-workdir-paid
+          path: /tmp/shipyard-examples-e2e.*
+          if-no-files-found: ignore
+          retention-days: 7
