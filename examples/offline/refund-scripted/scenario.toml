@@ -1,19 +1,39 @@
-task = "process a refund for order 123"
-rounds = 3
+task = "process a refund for order 123 including verification and confirmation"
+rounds = 5
 kind = "scripted"
+stop = "escalate_to_human"
+tokens = 2000
+timeout = 60
+fidelity = "strict"
+scoring = "both"
 
 [persona]
 name = "angry customer"
 description = "Wants a refund for a broken item"
+traits = ["impatient", "detailed"]
+
+[guardrails]
+command = "echo '{\"block\":false,\"reason\":\"ok\"}'"
+apply = ["input", "output"]
 
 [[turn]]
 user = "I want a refund for order 123"
+expect_tool_calls = ["lookup_order"]
 expect_contains = ["order number"]
 
 [[turn]]
 user = "123"
-expect_contains = ["processed", "receipt"]
+expect_tool_calls = ["verify_purchase"]
+expect_contains = ["verified", "receipt"]
+
+[[turn]]
+user = "it arrived broken"
+expect_contains = ["sorry", "refund"]
+
+[[turn]]
+user = "yes please"
+expect_contains = ["processed", "confirmation"]
 
 [[turn]]
 user = "thanks"
-expect_contains = ["welcome"]
+expect_contains = ["welcome", "ticket"]
