@@ -1,0 +1,58 @@
+task = "process a refund for order 123 including verification, damage inspection, confirmation, receipt delivery, escalation, audit, and closure"
+rounds = 8
+kind = "scripted"
+stop = "case_closed"
+tokens = 4000
+timeout = 120
+fidelity = "strict"
+scoring = "both"
+
+[persona]
+name = "angry customer"
+description = "Wants a refund for a broken item and demands a full audit trail"
+traits = ["impatient", "detailed", "skeptical"]
+
+[guardrails]
+command = "echo '{\"block\":false,\"reason\":\"ok\"}'"
+apply = ["input", "output"]
+
+[[turn]]
+user = "I want a refund for order 123"
+expect_contains = ["order number"]
+expect_tool_calls = ["lookup_order"]
+must_not_call = ["legacy_charge"]
+
+[[turn]]
+user = "123"
+expect_contains = ["verified", "receipt"]
+expect_tool_calls = ["verify_purchase", "check_inventory"]
+
+[[turn]]
+user = "it arrived broken"
+expect_contains = ["sorry", "refund"]
+expect_tool_calls = ["inspect_damage"]
+
+[[turn]]
+user = "yes please"
+expect_contains = ["processed", "confirmation"]
+expect_tool_calls = ["process_refund"]
+
+[[turn]]
+user = "send me the receipt"
+expect_contains = ["receipt", "email"]
+expect_tool_calls = ["send_confirmation"]
+
+[[turn]]
+user = "please escalate to a supervisor"
+expect_contains = ["ticket", "escalated"]
+expect_tool_calls = ["create_ticket"]
+
+[[turn]]
+user = "log this for audit"
+expect_contains = ["audit", "logged"]
+expect_tool_calls = ["audit_log"]
+
+[[turn]]
+user = "thanks"
+expect_contains = ["welcome", "ticket"]
+expect_tool_calls = ["close_case"]
