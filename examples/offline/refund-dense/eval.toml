@@ -1,0 +1,20 @@
+name = "refund-dense"
+description = "Dense multi-turn refund example exercising scenario modes, guardrails, sealed tests, turn assertions, tool calls, and ATIF 1.1."
+version = "1.0.0"
+instruction = "instruction.md"
+timeout_s = 120
+
+[[agent]]
+name = "agent"
+role = "target"
+plugin = "python"
+entrypoint = "agent.py"
+
+[environment]
+type = "local"
+workdir = "workdir"
+
+[tests]
+rubric = "tests/rubric.py"
+entrypoint = "score"
+pass_threshold = 1.0
