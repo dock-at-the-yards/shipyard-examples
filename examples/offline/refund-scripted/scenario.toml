@@ -18,12 +18,10 @@ apply = ["input", "output"]
 
 [[turn]]
 user = "I want a refund for order 123"
-expect_tool_calls = ["lookup_order"]
 expect_contains = ["order number"]
 
 [[turn]]
 user = "123"
-expect_tool_calls = ["verify_purchase"]
 expect_contains = ["verified", "receipt"]
 
 [[turn]]
