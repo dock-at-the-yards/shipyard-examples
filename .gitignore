@@ -12,3 +12,9 @@ dist/
 __pycache__/
 *.pyc
 .DS_Store
+
+# OpenCode local (agents symlink, commands, skills)
+.opencode/
+
+# OpenSpec (local spec artifacts)
+openspec/

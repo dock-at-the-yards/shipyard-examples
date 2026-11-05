@@ -128,7 +128,7 @@ if [ -z "$BIN" ] || [ ! -x "$BIN" ]; then
   exit 2
 fi
 
-ACTUAL_VERSION="$("$BIN" version 2>/dev/null | head -n1 | awk '{print $NF}')"
+ACTUAL_VERSION="$("$BIN" version 2>/dev/null | awk 'NR==1{print $NF; exit}')"
 if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
   if [ "$STRICT_VERSION" -eq 1 ]; then
     say "error: binary is $ACTUAL_VERSION but VERSION pins $EXPECTED_VERSION (--strict-version)"
