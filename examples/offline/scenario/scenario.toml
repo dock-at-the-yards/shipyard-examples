@@ -7,4 +7,4 @@ name = "reviewer"
 
 [[turn]]
 user = "Please fix slugify"
-expect_contains = ["done"]
+expect_contains = ["rewrote", "verify"]
