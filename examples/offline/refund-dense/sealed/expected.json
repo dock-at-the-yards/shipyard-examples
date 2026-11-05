@@ -1,0 +1,5 @@
+{
+  "receipt": "refund processed for order 123\nconfirmation: REF-123\nreceipt emailed to customer\nsupervisor ticket: TKT-9\naudit log: AUD-7\n",
+  "required_tools": ["lookup_order", "verify_purchase", "check_inventory", "inspect_damage", "process_refund", "send_confirmation", "create_ticket", "audit_log", "close_case"],
+  "forbidden_tools": ["legacy_charge"]
+}
