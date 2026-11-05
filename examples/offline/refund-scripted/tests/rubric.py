@@ -1,0 +1,1 @@
+../../../_common/rubrics/receipt_rubric.py
