@@ -9,7 +9,7 @@ conversation = [
     "Customer: I want a refund for order 123",
     "Agent: I found order 123. Please confirm the order number.",
     "Customer: 123",
-    "Agent: Purchase verified. Your receipt is ready. I am sorry it arrived broken, so I will process a refund.",
+    "Agent: Purchase verified. Your receipt is ready.",
     "Customer: it arrived broken",
     "Agent: I inspected the damage. I am sorry, and I will issue a refund.",
     "Customer: yes please",
