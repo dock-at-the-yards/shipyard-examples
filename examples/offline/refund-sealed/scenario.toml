@@ -1,0 +1,14 @@
+task = "process a refund for order 123"
+rounds = 3
+kind = "scripted"
+
+[persona]
+name = "angry customer"
+
+[guardrails]
+command = "echo '{\"block\":false,\"reason\":\"ok\"}'"
+apply = ["input", "output"]
+
+[[turn]]
+user = "I want a refund for order 123"
+expect_contains = ["refund"]
