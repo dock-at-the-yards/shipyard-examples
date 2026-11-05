@@ -1,0 +1,19 @@
+task = "process a refund for order 123"
+rounds = 3
+kind = "scripted"
+
+[persona]
+name = "angry customer"
+description = "Wants a refund for a broken item"
+
+[[turn]]
+user = "I want a refund for order 123"
+expect_contains = ["order number"]
+
+[[turn]]
+user = "123"
+expect_contains = ["processed", "receipt"]
+
+[[turn]]
+user = "thanks"
+expect_contains = ["welcome"]

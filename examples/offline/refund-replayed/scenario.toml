@@ -1,0 +1,7 @@
+task = "process a refund for order 123"
+rounds = 3
+kind = "replayed"
+fixture = "fixtures/turns.jsonl"
+
+[persona]
+name = "angry customer"
