@@ -1,4 +1,4 @@
-import json, os
+import os
 
 def score(workdir):
     receipt = os.path.join(workdir, "receipt.txt")
